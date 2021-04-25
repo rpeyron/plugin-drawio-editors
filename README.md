@@ -113,4 +113,5 @@ To create a new editor you should:
 ## License
 
 GPL v3.0
+
 Author : Rémi Peyronnet - 2021
