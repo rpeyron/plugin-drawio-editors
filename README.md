@@ -109,3 +109,8 @@ To create a new editor you should:
 - add the dependancies to package.json
 - add the plugin to webpack.config.js to build the standalone version
 - add the plugin to all-editors.js to include it in the bundle
+
+## License
+
+GPL v3.0
+Author : Rémi Peyronnet - 2021
