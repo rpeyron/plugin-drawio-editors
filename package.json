@@ -1,0 +1,42 @@
+{
+  "name": "plugin-drawio-swagger",
+  "displayName": "Draw.io: Swagger plugin",
+  "description": "Swagger plugin for Draw.io Desktop",
+  "version": "0.0.0",
+  "license": "GPL-3.0",
+  "publisher": "rpeyron",
+  "repository": "https://github.com/rpeyron/plugin_drawio_swagger",
+  "readme": "./README.md",
+  "scripts": {
+    "webpack:production": "webpack --mode production",
+    "webpack:development": "webpack --mode development",
+    "build": "npm run webpack:production",
+    "dev": "npm run webpack:development",
+    "dev-win": "set DRAWIO_ENV=dev&& npm run dev && copy /Y dist\\*-plugin.webpack.js %AppData%\\draw.io\\plugins && cd ..\\drawio\\src\\main\\webapp && .\\node_modules\\.bin\\electron .",
+    "release-win": "set DRAWIO_ENV=dev&& npm run build && copy /Y dist\\*-plugin.webpack.js %AppData%\\draw.io\\plugins && cd ..\\drawio\\src\\main\\webapp && .\\node_modules\\.bin\\electron ."
+  },
+  "devDependencies": {
+    "@typed-mxgraph/typed-mxgraph": "^1.0.1",
+    "css-loader": "^5.2.0",
+    "raw-loader": "^4.0.2",
+    "style-loader": "^2.0.0",
+    "ts-loader": "^8.1.0",
+    "typescript": "^4.2.4",
+    "webpack": "^5.1.3",
+    "webpack-cli": "^4.0.0"
+  },
+  "dependencies": {
+    "@asyncapi/react-component": "^0.22.4",
+    "deepmerge": "^4.2.2",
+    "http-browserify": "^1.7.0",
+    "https-browserify": "^1.0.0",
+    "path-browserify": "^1.0.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-scripts": "^3.0.0",
+    "rich-markdown-editor": "^11.6.4",
+    "styled-components": "^5.2.3",
+    "swagger-editor": "^3.15.11",
+    "swagger-ui": "^3.46.0"
+  }
+}
