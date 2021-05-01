@@ -31,6 +31,11 @@ jobs:
     - run: npm ci
     - name: Build plugins
       run: npm run build --if-present
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: dist-plugins
+        path: dist
 #    - name: Upload to demo repository
 #      uses: cpina/github-action-push-to-another-repository@v1.3
 #      env:
