@@ -5,11 +5,11 @@ name: Node.js CI
 
 on:
   push:
-#    branches: [ master ]
+    branches: [ master ]
     tags:
     - 'v*'    
-#  pull_request:
-#    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
@@ -31,8 +31,16 @@ jobs:
     - run: npm ci
     - name: Build plugins
       run: npm run build --if-present
+#    - name: Upload to demo repository
+#      uses: cpina/github-action-push-to-another-repository@v1.3
+#      env:
+#        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+#      with:
+#        source-directory: 'dist'
+#        destination-repository-name: 'drawio'
     - name: Release
       uses: docker://antonyurchenko/git-release:latest
+      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         DRAFT_RELEASE: "true"
