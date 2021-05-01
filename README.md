@@ -8,7 +8,7 @@ Support now:
 * Markdown through rich-markdown-editor
 
 ## Online Demo
-[Online Demo]()
+[Online Demo](https://rpeyron.github.io/drawio/src/main/webapp/index.html)
 
 ## Usage
 
