@@ -1,4 +1,6 @@
 const path = require("path");
+const webpack = require('webpack');
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
 
 const ENTRY = {
   editors: "./src/all-editors.js",
@@ -40,4 +42,7 @@ module.exports = {
       https: require.resolve("https-browserify"),
     },
   },
+  plugins: [
+      new NodePolyfillPlugin()
+  ],
 };

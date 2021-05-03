@@ -18,6 +18,7 @@
   "devDependencies": {
     "@typed-mxgraph/typed-mxgraph": "^1.0.1",
     "css-loader": "^5.2.0",
+    "process": "^0.11.10",
     "raw-loader": "^4.0.2",
     "style-loader": "^2.0.0",
     "ts-loader": "^8.1.0",
@@ -30,6 +31,7 @@
     "deepmerge": "^4.2.2",
     "http-browserify": "^1.7.0",
     "https-browserify": "^1.0.0",
+    "node-polyfill-webpack-plugin": "^1.1.0",
     "path-browserify": "^1.0.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
