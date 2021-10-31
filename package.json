@@ -13,7 +13,8 @@
     "build": "npm run webpack:production",
     "dev": "npm run webpack:development",
     "dev-win": "set DRAWIO_ENV=dev&& npm run dev && copy /Y dist\\*-plugin.webpack.js %AppData%\\draw.io\\plugins && cd ..\\drawio\\src\\main\\webapp && .\\node_modules\\.bin\\electron .",
-    "release-win": "set DRAWIO_ENV=dev&& npm run build && copy /Y dist\\*-plugin.webpack.js %AppData%\\draw.io\\plugins && cd ..\\drawio\\src\\main\\webapp && .\\node_modules\\.bin\\electron ."
+    "release-win": "set DRAWIO_ENV=dev&& npm run build && copy /Y dist\\*-plugin.webpack.js %AppData%\\draw.io\\plugins && cd ..\\drawio\\src\\main\\webapp && .\\node_modules\\.bin\\electron .",
+    "webpack-stats": "webpack --json > stats.json"
   },
   "devDependencies": {
     "@typed-mxgraph/typed-mxgraph": "^1.0.1",
@@ -28,6 +29,12 @@
   },
   "dependencies": {
     "@asyncapi/react-component": "^0.22.4",
+    "@editorjs/editorjs": "^2.22.2",
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@tiptap/core": "^2.0.0-beta.130",
+    "@tiptap/starter-kit": "^2.0.0-beta.132",
+    "browserify-fs": "^1.0.0",
+    "clear-module": "^4.1.1",
     "deepmerge": "^4.2.2",
     "http-browserify": "^1.7.0",
     "https-browserify": "^1.0.0",
@@ -39,6 +46,7 @@
     "rich-markdown-editor": "^11.6.4",
     "styled-components": "^5.2.3",
     "swagger-editor": "^3.15.11",
-    "swagger-ui": "^3.46.0"
+    "swagger-ui": "^3.46.0",
+    "tiny-editor": "^0.2.5"
   }
 }

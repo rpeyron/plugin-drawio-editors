@@ -23,6 +23,10 @@ export interface BaseEditorOptions {
     /** Define the palette items */
     paletteItems?: BaseEditorPaletteItem[]
 
+    /** Extra config of the components (plugin internals dependant)
+    */
+    config?: any;
+
 }
 
 export interface BaseEditorPaletteItem {
@@ -57,6 +61,9 @@ export interface BaseEditorPaletteItem {
 
   /** The text included in the palette item */
   text?: string;
+
+  /** The style to be appended to the palette item */
+  style?: string;
 
   /** The node definition in the palette item (the XML will be parsed). 
     *  Should include the attributeName.
@@ -167,7 +174,7 @@ export class BaseEditor {
       } else {
          let node =  mxUtils.parseXml(item.node).getRootNode().firstChild;
          // if (!node) { let doc = mxUtils.createXmlDocument(); node = doc.createElement('editor') }
-         let cell = new mxCell(node, new mxGeometry(0, 0, item.width, item.height), "shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:"+item.icon+";");
+         let cell = new mxCell(node, new mxGeometry(0, 0, item.width, item.height), "shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:"+item.icon+";"+item.style);
          cell.vertex = true;
          cell.setAttribute(me.options.attributeName, item.text);
          let itemelt = editorUi.sidebar.createVertexTemplateFromCells([cell], item.width, item.height, item.label, true, true)
@@ -184,6 +191,7 @@ export class BaseEditor {
       if (!item.height) item.height = 50
 
       if (!item.icon && !item.data) item.icon = "image/svg+xml,"+btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect x="20" y="20" width="40" height="40"/></svg>')
+      if (!item.style && !item.data) item.style = ""
       if (!item.node && !item.data) item.node = "<editor />"
       if (!item.text && !item.data) item.text = " "
   }
@@ -199,7 +207,6 @@ export class BaseEditor {
     return false;
   }
   
-
   showDialog(editorUi: any, shape: mxShape) {
     let me = this;
 
@@ -240,6 +247,11 @@ export class BaseEditor {
     okBtn.className = 'geBtn gePrimaryBtn';
     if (!editorUi.editor.cancelFirst) { buttons.appendChild(cancelBtn); }
 
+    // Prevent drawio keydown listeners to allow cut/copy/paste
+    div.addEventListener('keydown', (event) => {
+      event.stopPropagation()
+    });
+
     // Call function to add actual editor
     me.onFillWindow(editorUi, div, win, shape);
 
@@ -268,11 +280,11 @@ export class BaseEditor {
 
 
   // Default implementation of validate
-  validate(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  async validate(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
     if (editorUi.spinner.spin(document.body, mxResources.get('inserting'))) {
       var graph = editorUi.editor.graph;
       graph.getModel().beginUpdate();
-      this.setShapeValue(editorUi, shape, this.getEditorValue(editorUi, div, win));
+      this.setShapeValue(editorUi, shape, await this.getEditorValue(editorUi, div, win));
       graph.getModel().endUpdate();
       editorUi.spinner.stop();
       if (shape.state.cell != null) {
@@ -289,7 +301,7 @@ export class BaseEditor {
   }
 
   // Default implementation to get editor value, used in default implementation of validate
-  getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) : string {
+  async getEditorValue(editorUi: any, div?: HTMLDivElement, win?: mxWindow) : Promise<string> {
     return ""  
   }
 

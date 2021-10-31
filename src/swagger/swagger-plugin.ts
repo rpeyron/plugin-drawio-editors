@@ -22,6 +22,7 @@ export class SwaggerEditorPlugin extends BaseEditor {
     this.ui = SwaggerEditor({
       dom_id: `#editor_${this.name}_div`,
       layout: 'EditorLayout',
+      ...this.options.config
     });
     this.ui.specActions.updateSpec(this.getShapeValue(editorUi, shape));
     (<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';

@@ -5,6 +5,7 @@ import * as React from 'react';
 import ReactDOM from "react-dom";
 import AsyncApiComponent from "@asyncapi/react-component";
 
+// https://github.com/asyncapi/asyncapi-react
 import "@asyncapi/react-component/lib/styles/fiori.css";
 
 import asyncApiDefaultText from './asyncapi-example.yaml'
@@ -16,12 +17,12 @@ export class AsyncApiEditorPlugin extends BaseEditor {
   onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     let schema = this.getShapeValue(editorUi, shape);
-    this.component = ReactDOM.render(<AsyncApiComponent schema={schema} />, maindiv);
+    this.component = ReactDOM.render(<AsyncApiComponent schema={schema} config={Object.assign({}, this.options.config)} />, maindiv);
 
     //(<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';
   }
 
-  getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
+  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
       //(this.component as AsyncApiComponent).
       return "" //this.ui.specSelectors.specStr()
   }

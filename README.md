@@ -115,3 +115,21 @@ To create a new editor you should:
 GPL v3.0
 
 Author : Rémi Peyronnet - 2021
+
+# Changelog
+
+# 2021-10-31 - v1.1 
+- Fixed: copy/paste conflict with drawio
+- Added: configure custom additional styles for palette item
+- Added: advanced configuration abilities with access to customize plugin internals
+- Added editors : 
+  - TinyEditor : HTML, default configuration
+  - TipTap : HTML, default minimal configuration (no toolbar, no plugins) ; any PR welcome for configuration
+  - EditorJS : JSON structure, default minimal configuration
+
+# 2021-04-25 - v1.0 - First public version
+- EditorsCommon structure with configuration
+- Editors :
+  - Markdown editor
+  - SwaggerEditor playground
+  - AsyncApi viewer only

@@ -4,6 +4,7 @@ import  { mxWindow, mxUtils, mxResources, mxShape, mxCell, mxEvent, mxGeometry }
 import * as React from 'react';
 import ReactDOM from "react-dom";
 
+// https://github.com/outline/rich-markdown-editor
 import Editor from "rich-markdown-editor";
 
 let markdownDefaultText = "Default"
@@ -17,7 +18,7 @@ export class MarkdownEditorPlugin extends BaseEditor {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     let value = this.getShapeValue(editorUi, shape);
-    this.component = ReactDOM.render(<Editor autoFocus defaultValue={value} onChange={function(){}} />, maindiv);
+    this.component = ReactDOM.render(<Editor autoFocus defaultValue={value} onChange={function(){}} {...this.options.config} />, maindiv);
   }
 
   onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
@@ -31,7 +32,7 @@ export class MarkdownEditorPlugin extends BaseEditor {
   }
 
 
-  getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
+  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
       return (this.component as Editor).value()
   }
 

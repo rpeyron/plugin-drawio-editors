@@ -7,6 +7,9 @@ const ENTRY = {
   swagger: "./src/swagger/swagger-plugin.ts",
   asyncapi: "./src/asyncapi/asyncapi-plugin.tsx",
   markdown: "./src/markdown/markdown-plugin.tsx",
+  editorjs: "./src/editorjs/editorjs-plugin.ts",
+  tinyeditor: "./src/tinyeditor/tinyeditor-plugin.ts",
+  tiptap: "./src/tiptap/tiptap-plugin.ts",
 };
 
 module.exports = {
@@ -40,9 +43,11 @@ module.exports = {
       path: require.resolve("path-browserify"), 
       http: require.resolve("http-browserify"),
       https: require.resolve("https-browserify"),
+      fs: require.resolve("browserify-fs"),
     },
   },
   plugins: [
       new NodePolyfillPlugin()
   ],
-};
+  //target: "electron-renderer",
+}
