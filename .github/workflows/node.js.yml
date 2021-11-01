@@ -54,4 +54,4 @@ jobs:
         ALLOW_EMPTY_CHANGELOG: "true"
       with:
         args: |
-            dist/*
+            dist/*.js
