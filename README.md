@@ -6,6 +6,8 @@ Support now:
 * Swagger / OpenAPI through swagger-editor
 * AsyncApi through asyncapi (viewer only)
 * Markdown through rich-markdown-editor
+* HTML with Quill, TinyEditor, TipTap or EditorJS (see limitations in changelog)
+
 
 ## Online Demo
 [Online Demo](https://rpeyron.github.io/drawio/src/main/webapp/index.html)

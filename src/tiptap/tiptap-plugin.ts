@@ -5,7 +5,7 @@ import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 
 let tiptapDefaultText = "Default";
-import tiptapDefaultSVG from "./tiptap.svg"; 
+import tiptapDefaultSVG from "!!raw-loader!./tiptap.svg"; 
 
 export class TiptapEditorPlugin extends BaseEditor {
   component: any;
