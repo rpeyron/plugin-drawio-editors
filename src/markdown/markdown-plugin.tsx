@@ -17,6 +17,7 @@ export class MarkdownEditorPlugin extends BaseEditor {
   onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
+    (maindiv as HTMLElement).style.backgroundColor = "white";
     let value = this.getShapeValue(editorUi, shape);
     this.component = ReactDOM.render(<Editor autoFocus defaultValue={value} onChange={function(){}} {...this.options.config} />, maindiv);
   }
@@ -38,8 +39,8 @@ export class MarkdownEditorPlugin extends BaseEditor {
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
 
-      if (!item.width)  item.width = 80
-      if (!item.height) item.height = 50
+      if (!item.width)  item.width = 50
+      if (!item.height) item.height = 30
 
       // https://raw.githubusercontent.com/asyncapi/spec/master/assets/asyncapi.xml
       if (!item.icon && !item.data) item.icon = "image/svg+xml,"+btoa(markdownDefaultSVG)

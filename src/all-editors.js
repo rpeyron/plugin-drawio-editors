@@ -4,4 +4,4 @@ require('./markdown/markdown-plugin')
 require('./tiptap/tiptap-plugin')
 require('./tinyeditor/tinyeditor-plugin')
 require('./editorjs/editorjs-plugin')
-
+require('./quill/quill-plugin')

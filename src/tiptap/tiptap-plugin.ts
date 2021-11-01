@@ -5,7 +5,7 @@ import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 
 let tiptapDefaultText = "Default";
-import tiptapDefaultSVG from "./tiptap.svg";
+import tiptapDefaultSVG from "./tiptap.svg"; 
 
 export class TiptapEditorPlugin extends BaseEditor {
   component: any;
@@ -18,6 +18,7 @@ export class TiptapEditorPlugin extends BaseEditor {
   ) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
+    (maindiv as HTMLElement).style.backgroundColor = "white";
     let value = this.getShapeValue(editorUi, shape);
     this.component = new Editor({
       element: maindiv,
@@ -41,8 +42,8 @@ export class TiptapEditorPlugin extends BaseEditor {
   }
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
-    if (!item.width) item.width = 20;
-    if (!item.height) item.height = 20;
+    if (!item.width) item.width = 32;
+    if (!item.height) item.height = 32;
 
     // https://raw.githubusercontent.com/asyncapi/spec/master/assets/asyncapi.xml
     if (!item.icon && !item.data)

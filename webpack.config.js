@@ -1,6 +1,6 @@
 const path = require("path");
-const webpack = require('webpack');
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
+const webpack = require("webpack");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 const ENTRY = {
   editors: "./src/all-editors.js",
@@ -10,6 +10,7 @@ const ENTRY = {
   editorjs: "./src/editorjs/editorjs-plugin.ts",
   tinyeditor: "./src/tinyeditor/tinyeditor-plugin.ts",
   tiptap: "./src/tiptap/tiptap-plugin.ts",
+  quill: "./src/quill/quill-plugin.ts",
 };
 
 module.exports = {
@@ -21,7 +22,7 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.svg$/, use: "raw-loader" },
+      { test: /\.svg$/, loader: "svg-inline-loader" },
       { test: /\.yaml$/, use: "raw-loader" },
       {
         test: /\.css$/i,
@@ -38,16 +39,17 @@ module.exports = {
     mxgraph: "window",
   },
   resolve: {
+    alias: {
+      quill$: path.resolve(__dirname, "node_modules/quill/quill.js"),
+    },
     extensions: [".tsx", ".ts", ".js"],
-    fallback: { 
-      path: require.resolve("path-browserify"), 
+    fallback: {
+      path: require.resolve("path-browserify"),
       http: require.resolve("http-browserify"),
       https: require.resolve("https-browserify"),
       fs: require.resolve("browserify-fs"),
     },
   },
-  plugins: [
-      new NodePolyfillPlugin()
-  ],
+  plugins: [new NodePolyfillPlugin()],
   //target: "electron-renderer",
-}
+};

@@ -19,6 +19,7 @@ export class EditorjsEditorPlugin extends BaseEditor {
   ) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
+    (maindiv as HTMLElement).style.backgroundColor = "white";
     let value = this.getShapeValue(editorUi, shape);
     let data = {}
     try {

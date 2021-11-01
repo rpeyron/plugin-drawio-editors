@@ -123,6 +123,7 @@ Author : Rémi Peyronnet - 2021
 - Added: configure custom additional styles for palette item
 - Added: advanced configuration abilities with access to customize plugin internals
 - Added editors : 
+  - Quill : HTML, full toolbar (JSON structure possible, commented)
   - TinyEditor : HTML, default configuration
   - TipTap : HTML, default minimal configuration (no toolbar, no plugins) ; any PR welcome for configuration
   - EditorJS : JSON structure, default minimal configuration
