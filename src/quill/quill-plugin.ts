@@ -26,6 +26,8 @@ export class QuillEditorPlugin extends BaseEditor {
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     (maindiv as HTMLElement).style.backgroundColor = "white";
     let value = this.getShapeValue(editorUi, shape);
+    let extra_toolbar = (this.options.config) ? this.options.config.extra_toolbar : {}
+    let extra_modules = (this.options.config) ? this.options.config.extra_modules : {}
     this.component = new Quill(`#editor_${this.name}_div`, {
       modules: {
         toolbar:  [
@@ -38,9 +40,9 @@ export class QuillEditorPlugin extends BaseEditor {
           [ 'link', 'image', 'video' ],
           [{ 'script': 'super' }, { 'script': 'sub' }],
           [ 'clean' ],
-          ...this.options.config.extra_toolbar
+          ... extra_toolbar
         ],
-        ...this.options.config.extra_modules
+        ... extra_modules
       },
       placeholder: 'Compose an epic...',
       theme: 'snow',  // or 'bubble'
