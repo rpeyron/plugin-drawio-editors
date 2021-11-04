@@ -61,7 +61,7 @@ export class TinyEditorPlugin extends BaseEditor {
   }
 }
 
-new TinyEditorPlugin("tinyeditor", {
+(window as any).pluginTinyEditorPlugin = new TinyEditorPlugin("tinyeditor", {
   attributeName: "tinyeditorData",
   contextual: "Edit HTML with TinyEditor",
   title: "TinyEditor Editor",

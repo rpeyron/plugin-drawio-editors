@@ -52,7 +52,7 @@ export class MarkdownEditorPlugin extends BaseEditor {
 
 }
 
-new MarkdownEditorPlugin('markdown', {
+(window as any).pluginMarkdownEditorPlugin = new MarkdownEditorPlugin('markdown', {
     attributeName: "markdownData",
     contextual: "Edit with Markdown Editor",
     title: "Markdown Editor",

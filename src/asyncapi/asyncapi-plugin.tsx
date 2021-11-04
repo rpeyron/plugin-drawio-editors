@@ -39,7 +39,7 @@ export class AsyncApiEditorPlugin extends BaseEditor {
 
 }
 
-new AsyncApiEditorPlugin('asyncApi', {
+(window as any).pluginAsyncApiEditorPlugin = new AsyncApiEditorPlugin('asyncApi', {
     attributeName: "asyncApiData",
     contextual: "Edit with Async API Editor",
     title: "AsyncAPI Editor",

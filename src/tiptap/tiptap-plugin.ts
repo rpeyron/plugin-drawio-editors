@@ -55,7 +55,7 @@ export class TiptapEditorPlugin extends BaseEditor {
   }
 }
 
-new TiptapEditorPlugin("tiptap", {
+(window as any).pluginTiptapEditorPlugin = new TiptapEditorPlugin("tiptap", {
   attributeName: "tiptapData",
   contextual: "Edit HTML with TipTap",
   title: "TipTap Editor",

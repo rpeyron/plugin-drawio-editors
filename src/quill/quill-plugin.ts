@@ -80,7 +80,7 @@ export class QuillEditorPlugin extends BaseEditor {
   }
 }
 
-new QuillEditorPlugin("quill", {
+(window as any).pluginQuillEditorPlugin = new QuillEditorPlugin("quill", {
   attributeName: "quillData",
   contextual: "Edit HTML with Quill",
   title: "Quill Editor",

@@ -51,7 +51,7 @@ export class SwaggerEditorPlugin extends BaseEditor {
 
 }
 
-new SwaggerEditorPlugin('swagger', {
+(window as any).pluginSwaggerEditorPlugin = new SwaggerEditorPlugin('swagger', {
     attributeName: "swaggerData",
     contextual: "Edit with Swagger Editor",
     title: "Swagger Editor",

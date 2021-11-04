@@ -6,7 +6,7 @@ export interface BaseEditorOptions {
     /** The name of attribute to consider */
     attributeName: string
 
-    /** Weither the editor should react on double clic or not (default: false) */
+    /** Weither the editor should react on double click or not (default: false) */
     ignoreDoubleClic?: boolean
 
     /** If defined and not empty, adds a menu with this title to edit the item */
@@ -31,7 +31,7 @@ export interface BaseEditorOptions {
 
 export interface BaseEditorPaletteItem {
 
-  /** The palette to inlude the palette item in. 
+  /** The palette to include the palette item in. 
     *  The palette will be search with the provided name. 
     *  If not found, will be created, with the label if provided or with the name if not.
     */
@@ -120,12 +120,6 @@ export class BaseEditor {
 
     this.options = options;
 
-    function showDialogCell(cell: mxCell) {
-      var shape = editorUi.editor.graph.view.states["map"][cell.mxObjectId].shape;
-      if (shape) {
-        me.showDialog(editorUi, shape);
-      }
-    }
 
     // Double clic
     if (!this.options.ignoreDoubleClic) {
@@ -133,7 +127,7 @@ export class BaseEditor {
         var cell = evt.getProperty("cell");
         if (me.isCellHandled(cell)) { 
           evt.consume();
-          showDialogCell(cell);
+          me.showDialogCell(editorUi, cell);
         }
       });
     }
@@ -146,7 +140,7 @@ export class BaseEditor {
         prevPopupMethod(menu, cell, evt);
         if(me.isCellHandled(cell)) {
           menu.addItem(me.options.contextual, null, function() { 
-            showDialogCell(cell);
+            me.showDialogCell(editorUi, cell);
           })
       }}
     }
@@ -263,6 +257,14 @@ export class BaseEditor {
 
   }
 
+  showDialogCell(editorUi: any, cell: mxCell) {
+    var shape = editorUi.editor.graph.view.states["map"][cell.mxObjectId].shape;
+    if (shape) {
+      this.showDialog(editorUi, shape);
+    }
+  }
+
+
   // Default implementation does nothing
   onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
 
@@ -321,8 +323,6 @@ export class BaseEditor {
         }
     }
   }
-
-
 
 }
 

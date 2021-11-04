@@ -60,7 +60,7 @@ export class EditorjsEditorPlugin extends BaseEditor {
   }
 }
 
-new EditorjsEditorPlugin("editorjs", {
+(window as any).pluginEditorjsEditorPlugin = new EditorjsEditorPlugin("editorjs", {
   attributeName: "editorjsData",
   contextual: "Edit with EditorJS",
   title: "EditorJS Editor",
