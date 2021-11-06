@@ -120,6 +120,12 @@ Author : Rémi Peyronnet - 2021
 
 # Changelog
 
+# 2021-11-06 - v1.1.2
+- Replaced the use of mxShape with mxCell
+
+# 2021-11-04 - v1.1.1
+- Added global variable to access the plugin
+
 # 2021-10-31 - v1.1 
 - Fixed: copy/paste conflict with drawio
 - Added: configure custom additional styles for palette item

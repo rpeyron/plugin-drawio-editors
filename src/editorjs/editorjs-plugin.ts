@@ -1,5 +1,5 @@
 import { BaseEditor, BaseEditorPaletteItem } from "../editor-common";
-import {  mxWindow,  mxShape,} from "mxgraph";
+import {  mxWindow,  mxShape, mxCell,} from "mxgraph";
 
 import EditorJS from '@editorjs/editorjs';
 
@@ -15,12 +15,12 @@ export class EditorjsEditorPlugin extends BaseEditor {
     editorUi: any,
     div: HTMLDivElement,
     win: mxWindow,
-    shape: mxShape
+    cell: mxCell
   ) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     (maindiv as HTMLElement).style.backgroundColor = "white";
-    let value = this.getShapeValue(editorUi, shape);
+    let value = this.getCellValue(editorUi, cell);
     let data = {}
     try {
       data = JSON.parse(value)
@@ -37,9 +37,9 @@ export class EditorjsEditorPlugin extends BaseEditor {
     editorUi: any,
     div: HTMLDivElement,
     win: mxWindow,
-    shape: mxShape
+    cell: mxCell
   ) {
-    super.onShowWindow(editorUi, div, win, shape);
+    super.onShowWindow(editorUi, div, win, cell);
   }
 
   async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {

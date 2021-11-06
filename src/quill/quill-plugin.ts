@@ -1,5 +1,5 @@
 import { BaseEditor, BaseEditorPaletteItem } from "../editor-common";
-import { mxWindow,  mxShape } from "mxgraph";
+import { mxWindow,  mxShape, mxCell } from "mxgraph";
 
 import 'quill';
 
@@ -20,12 +20,12 @@ export class QuillEditorPlugin extends BaseEditor {
     editorUi: any,
     div: HTMLDivElement,
     win: mxWindow,
-    shape: mxShape
+    cell: mxCell
   ) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     (maindiv as HTMLElement).style.backgroundColor = "white";
-    let value = this.getShapeValue(editorUi, shape);
+    let value = this.getCellValue(editorUi, cell);
     let extra_toolbar = (this.options.config) ? this.options.config.extra_toolbar : {}
     let extra_modules = (this.options.config) ? this.options.config.extra_modules : {}
     this.component = new Quill(`#editor_${this.name}_div`, {
@@ -56,9 +56,9 @@ export class QuillEditorPlugin extends BaseEditor {
     editorUi: any,
     div: HTMLDivElement,
     win: mxWindow,
-    shape: mxShape
+    cell: mxCell
   ) {
-    super.onShowWindow(editorUi, div, win, shape);
+    super.onShowWindow(editorUi, div, win, cell);
   }
 
   async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {

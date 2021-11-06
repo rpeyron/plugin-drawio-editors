@@ -14,9 +14,9 @@ export class AsyncApiEditorPlugin extends BaseEditor {
 
   component : any;
 
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
-    let schema = this.getShapeValue(editorUi, shape);
+    let schema = this.getCellValue(editorUi, cell);
     this.component = ReactDOM.render(<AsyncApiComponent schema={schema} config={Object.assign({}, this.options.config)} />, maindiv);
 
     //(<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';

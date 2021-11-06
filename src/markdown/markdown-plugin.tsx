@@ -14,16 +14,16 @@ export class MarkdownEditorPlugin extends BaseEditor {
 
   component : any;
 
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
     let maindiv = div.querySelector(`#editor_${this.name}_div`);
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     (maindiv as HTMLElement).style.backgroundColor = "white";
-    let value = this.getShapeValue(editorUi, shape);
+    let value = this.getCellValue(editorUi, cell);
     this.component = ReactDOM.render(<Editor autoFocus defaultValue={value} onChange={function(){}} {...this.options.config} />, maindiv);
   }
 
-  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
-    super.onShowWindow(editorUi, div, win, shape);
+  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
+    super.onShowWindow(editorUi, div, win, cell);
     (this.component as Editor).focusAtStart();
     /*
     (maindiv.firstElementChild.firstElementChild.firstElementChild as HTMLElement).style.padding = "4px";

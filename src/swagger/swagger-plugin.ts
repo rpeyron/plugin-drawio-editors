@@ -17,19 +17,19 @@ export class SwaggerEditorPlugin extends BaseEditor {
 
   ui : any;
 
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
     // https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
     this.ui = SwaggerEditor({
       dom_id: `#editor_${this.name}_div`,
       layout: 'EditorLayout',
       ...this.options.config
     });
-    this.ui.specActions.updateSpec(this.getShapeValue(editorUi, shape));
+    this.ui.specActions.updateSpec(this.getCellValue(editorUi, cell));
     (<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';
   }
 
-  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
-    super.onShowWindow(editorUi, div, win, shape);
+  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
+    super.onShowWindow(editorUi, div, win, cell);
     //@ts-ignore  undocumented maximize property
     win.title.dispatchEvent(new Event('dblclick'));
     (<HTMLElement>div.querySelector('.ace_text-input'))?.focus();

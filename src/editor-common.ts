@@ -194,14 +194,14 @@ export class BaseEditor {
     if (!cell) { return false; }
     //@ts-ignore isNode does not require node name
     if (mxUtils.isNode(cell.value)) {
-      if (cell.getAttribute(this.options.attributeName, '') != '') {
+      if (cell.getAttribute(this.options.attributeName, false) !== false) {
         return true;
       }
     }
     return false;
   }
-  
-  showDialog(editorUi: any, shape: mxShape) {
+
+  showDialogCell(editorUi: any, cell: mxCell) {
     let me = this;
 
     // Main element
@@ -231,12 +231,12 @@ export class BaseEditor {
     win.setClosable(true);
 
     // Cancel button behavior
-    var cancelBtn = mxUtils.button(mxResources.get('close'), function () { me.cancel(editorUi, div, win, shape); });
+    var cancelBtn = mxUtils.button(mxResources.get('close'), function () { me.cancel(editorUi, div, win, cell); });
     cancelBtn.className = 'geBtn';
     if (editorUi.editor.cancelFirst) {  buttons.appendChild(cancelBtn); }
 
     // OK button behavior
-    var okBtn = mxUtils.button(mxResources.get('apply'), function (evt) { me.validate(editorUi, div, win, shape); });
+    var okBtn = mxUtils.button(mxResources.get('apply'), function (evt) { me.validate(editorUi, div, win, cell); });
     buttons.appendChild(okBtn);
     okBtn.className = 'geBtn gePrimaryBtn';
     if (!editorUi.editor.cancelFirst) { buttons.appendChild(cancelBtn); }
@@ -247,31 +247,23 @@ export class BaseEditor {
     });
 
     // Call function to add actual editor
-    me.onFillWindow(editorUi, div, win, shape);
+    me.onFillWindow(editorUi, div, win, cell);
 
     // Show Window
     win.show();
 
     // Call function to focus editor
-    me.onShowWindow(editorUi, div, win, shape);
-
-  }
-
-  showDialogCell(editorUi: any, cell: mxCell) {
-    var shape = editorUi.editor.graph.view.states["map"][cell.mxObjectId].shape;
-    if (shape) {
-      this.showDialog(editorUi, shape);
-    }
+    me.onShowWindow(editorUi, div, win, cell);
   }
 
 
   // Default implementation does nothing
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
 
   }
 
   // Default implementation does nothing
-  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
     if (this.editorUi && 
         this.editorUi.editor && 
         this.editorUi.editor.graph && 
@@ -282,23 +274,23 @@ export class BaseEditor {
 
 
   // Default implementation of validate
-  async validate(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  async validate(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
     if (editorUi.spinner.spin(document.body, mxResources.get('inserting'))) {
       var graph = editorUi.editor.graph;
       graph.getModel().beginUpdate();
-      this.setShapeValue(editorUi, shape, await this.getEditorValue(editorUi, div, win));
+      this.setCellValue(editorUi, cell, await this.getEditorValue(editorUi, div, win));
       graph.getModel().endUpdate();
       editorUi.spinner.stop();
-      if (shape.state.cell != null) {
-        graph.setSelectionCell(shape.state.cell);
-        graph.scrollCellToVisible(shape.state.cell);
+      if (cell != null) {
+        graph.setSelectionCell(cell);
+        graph.scrollCellToVisible(cell);
       }
     }
     win.destroy();
   }
 
   // Default implementation of cancel
-  cancel(editorUi: any, div: HTMLDivElement, win: mxWindow, shape: mxShape) {
+  cancel(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
     win.destroy();
   }
 
@@ -308,18 +300,18 @@ export class BaseEditor {
   }
 
   // Default implementation to get shape value
-  getShapeValue(editorUi: any, shape: mxShape) : string {
-    if (shape && shape.state && shape.state.cell)
-      return shape.state.cell.getAttribute(this.options.attributeName, '')
+  getCellValue(editorUi: any, cell: mxCell) : string {
+    if (cell)
+      return cell.getAttribute(this.options.attributeName, '')
     return "";
   }
 
   // Default implementation to set shape value
-  setShapeValue(editorUi: any, shape: mxShape, text: string) {
-    if (shape && shape.state && shape.state.cell && shape.state.cell.value) {
+  setCellValue(editorUi: any, cell: mxCell, text: string) {
+    if (cell && cell.value) {
         //@ts-ignore  isNode does not require always the node name
-        if (mxUtils.isNode(shape.state.cell.value)) {
-          shape.state.cell.setAttribute(this.options.attributeName, text);
+        if (mxUtils.isNode(cell.value)) {
+          cell.setAttribute(this.options.attributeName, text);
         }
     }
   }
