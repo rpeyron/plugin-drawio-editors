@@ -104,7 +104,7 @@ export class BaseEditor {
 
     // Then apply options of defaultEditorsConfig if any (define it in PreConfig.js)
     //@ts-ignore
-    let defaultEditorsConfig = window.EditorUi.defaultEditorsConfig;
+    let defaultEditorsConfig = window.defaultEditorsConfig;
     if (defaultEditorsConfig && defaultEditorsConfig[this.name]) {
       options = merge(options, defaultEditorsConfig[this.name], { arrayMerge: overwriteMerge })
     }
@@ -231,12 +231,20 @@ export class BaseEditor {
     win.setClosable(true);
 
     // Cancel button behavior
-    var cancelBtn = mxUtils.button(mxResources.get('close'), function () { me.cancel(editorUi, div, win, cell); });
+    var cancelBtn = mxUtils.button(mxResources.get('cancel'), function () { 
+      if (mxUtils.confirm(mxResources.get('changesNotSaved')+"\n"+mxResources.get('areYouSure'))) {
+         me.cancel(editorUi, div, win, cell); 
+    }});
     cancelBtn.className = 'geBtn';
     if (editorUi.editor.cancelFirst) {  buttons.appendChild(cancelBtn); }
 
+    // Save without closing button behavior
+    var saveBtn = mxUtils.button(mxResources.get('save'), function (evt) { me.validate(editorUi, div, win, cell, false); });
+    buttons.appendChild(saveBtn);
+    saveBtn.className = 'geBtn';
+
     // OK button behavior
-    var okBtn = mxUtils.button(mxResources.get('apply'), function (evt) { me.validate(editorUi, div, win, cell); });
+    var okBtn = mxUtils.button(mxResources.get('saveAndExit'), function (evt) { me.validate(editorUi, div, win, cell, true); });
     buttons.appendChild(okBtn);
     okBtn.className = 'geBtn gePrimaryBtn';
     if (!editorUi.editor.cancelFirst) { buttons.appendChild(cancelBtn); }
@@ -274,7 +282,7 @@ export class BaseEditor {
 
 
   // Default implementation of validate
-  async validate(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
+  async validate(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell, close: boolean = true) {
     if (editorUi.spinner.spin(document.body, mxResources.get('inserting'))) {
       var graph = editorUi.editor.graph;
       graph.getModel().beginUpdate();
@@ -286,7 +294,7 @@ export class BaseEditor {
         graph.scrollCellToVisible(cell);
       }
     }
-    win.destroy();
+    if (close) win.destroy();
   }
 
   // Default implementation of cancel

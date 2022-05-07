@@ -38,7 +38,7 @@ This set of plugins is designed to be highly configurable.
 
 Places where you can configure the plugin:
 - in the user's draw.io configuration, through the top menu bar `Extras`/ `Configure` in a `defaultEditorsConfig` entry
-- if you are doing a custom build of draw.io, through the PreConfig.js file with declaring a window.EditorUi.defaultEditorsConfig option
+- if you are doing a custom build of draw.io, through the PreConfig.js file with declaring a window.defaultEditorsConfig option
 
 The defaultEditorsConfig object's keys should be the plugin names you want to configure. 
 
@@ -119,6 +119,10 @@ GPL v3.0
 Author : Rémi Peyronnet - 2021
 
 # Changelog
+
+# 2022-05-07
+- Fixed global config option
+- Changed close & apply buttons to avoid losing data by misunderstanding
 
 # 2021-11-06 - v1.1.2
 - Replaced the use of mxShape with mxCell
