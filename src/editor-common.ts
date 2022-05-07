@@ -231,9 +231,13 @@ export class BaseEditor {
     win.setClosable(true);
 
     // Cancel button behavior
-    var cancelBtn = mxUtils.button(mxResources.get('cancel'), function () { 
-      if (mxUtils.confirm(mxResources.get('changesNotSaved')+"\n"+mxResources.get('areYouSure'))) {
-         me.cancel(editorUi, div, win, cell); 
+    var cancelBtn = mxUtils.button(mxResources.get('cancel'), async function () { 
+      let cellValue = me.getCellValue(editorUi, cell).replace(/(\r\n|\n\r)/g,"\n")
+      let currentValue = (await me.getEditorValue(editorUi, div, win)).replace(/(\r\n|\n\r)/g,"\n")
+      // Check if content has not been changed or ask to discard
+      if (  (cellValue == currentValue) ||
+          (mxUtils.confirm(mxResources.get('changesNotSaved')+"\n"+mxResources.get('areYouSure')))  ) {
+            me.cancel(editorUi, div, win, cell); 
     }});
     cancelBtn.className = 'geBtn';
     if (editorUi.editor.cancelFirst) {  buttons.appendChild(cancelBtn); }
