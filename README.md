@@ -120,7 +120,7 @@ Author : Rémi Peyronnet - 2021
 
 # Changelog
 
-# 2022-05-07
+# 2022-05-07 - v1.2
 - Fixed global config option
 - Changed close & apply buttons to avoid losing data by misunderstanding
 
