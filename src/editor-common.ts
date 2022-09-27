@@ -292,6 +292,7 @@ export class BaseEditor {
       graph.getModel().beginUpdate();
       this.setCellValue(editorUi, cell, await this.getEditorValue(editorUi, div, win));
       graph.getModel().endUpdate();
+      graph.refresh(cell);
       editorUi.spinner.stop();
       if (cell != null) {
         graph.setSelectionCell(cell);
