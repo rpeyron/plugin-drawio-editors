@@ -3,9 +3,18 @@ import { mxWindow, mxShape, mxCell } from "mxgraph";
 
 import BpmnModeler from 'bpmn-js/lib/Modeler';
 
+import {
+  BpmnPropertiesPanelModule,
+  BpmnPropertiesProviderModule,
+} from 'bpmn-js-properties-panel';
+
+
 import "bpmn-js/dist/assets/diagram-js.css";
 import "bpmn-js/dist/assets/bpmn-js.css";
 import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
+
+import "bpmn-js-properties-panel/dist/assets/properties-panel.css";
+
 
 import bpmnDefaultSVG from "./BPMN-logo.svg";
 
@@ -35,16 +44,38 @@ export class BPMNEditorPlugin extends BaseEditor {
     win: mxWindow,
     cell: mxCell
   ) {
-    let maindiv = div.querySelector(`#editor_${this.name}_div`);
-    (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
-    (maindiv as HTMLElement).style.backgroundColor = "white";
-    this.component = new BpmnModeler({
-      container: `#editor_${this.name}_div`,
+    let maindiv = div.querySelector(`#editor_${this.name}_div`) as HTMLDivElement;
+    maindiv.style.padding = "8px 0px 0px 8px";
+    maindiv.style.backgroundColor = "white";
+    maindiv.innerHTML = `<div class="bpmn_modeler" style="display: flex; height: 100%;">
+      <div id="bpmn_canvas" style="flex: 1"></div>
+      <div id="bpmn_properties" style="display: none; flex: 0 25%;"></div>
+    </div>`;
+
+    let modelerOptions = {
+      container: "#bpmn_canvas", // `#editor_${this.name}_div`,
       keyboard: {
         bindTo: window
       },
+      additionalModules: [],
       ...this.options.config
-    })
+    }
+
+    if (this.options.config?.propertiesPanel) {
+      let propdiv = div.querySelector(`#bpmn_properties`) as HTMLDivElement
+      if (propdiv) propdiv.style.display="block"
+      modelerOptions.propertiesPanel = {
+        parent: '#bpmn_properties'
+      }
+      modelerOptions.additionalModules = [
+        BpmnPropertiesPanelModule,
+        BpmnPropertiesProviderModule,
+        ...modelerOptions.additionalModules
+      ]
+    }
+
+    this.component = new BpmnModeler(modelerOptions)
+    console.log("BPMN Component:", this, this.component, modelerOptions)
 
     let value = this.getCellValue(editorUi, cell);
     try {
@@ -115,4 +146,7 @@ export class BPMNEditorPlugin extends BaseEditor {
       style: "collapsable=0;"
     },
   ],
+  config: {
+    propertiesPanel: true
+  }
 });

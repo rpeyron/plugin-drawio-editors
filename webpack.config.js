@@ -3,14 +3,14 @@ const webpack = require("webpack");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 const ENTRY = {
-  /*editors: "./src/all-editors.js",
+  editors: "./src/all-editors.js",
   swagger: "./src/swagger/swagger-plugin.ts",
   asyncapi: "./src/asyncapi/asyncapi-plugin.tsx",
   markdown: "./src/markdown/markdown-plugin.tsx",
   editorjs: "./src/editorjs/editorjs-plugin.ts",
   tinyeditor: "./src/tinyeditor/tinyeditor-plugin.ts",
   tiptap: "./src/tiptap/tiptap-plugin.ts",
-  quill: "./src/quill/quill-plugin.ts",*/
+  quill: "./src/quill/quill-plugin.ts",
   bpmn: "./src/bpmn/bpmn-plugin.ts",
 };
 
@@ -40,6 +40,12 @@ module.exports = {
           loader: 'url-loader',
         },
       },
+      {
+        test: /\.m?js$/,
+        resolve: {
+          fullySpecified: false
+        },
+      },      
     ],
   },
   externals: {
@@ -60,6 +66,12 @@ module.exports = {
       console: require.resolve('console-browserify'),
     },
   },
-  plugins: [new NodePolyfillPlugin()],
+  plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+      Buffer: ['buffer', 'Buffer'],
+    }),
+    new NodePolyfillPlugin(),
+  ],
   //target: "electron-renderer",
 };
