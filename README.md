@@ -7,6 +7,7 @@ Support now:
 * AsyncApi through asyncapi (viewer only)
 * Markdown through rich-markdown-editor
 * HTML with Quill, TinyEditor, TipTap or EditorJS (see limitations in changelog)
+* BPMN with BPMN-js editor (from Camunda) - will not work with the official draw.io desktop version (see below)
 
 
 ## Online Demo
@@ -80,6 +81,23 @@ Example:
 
 See editor-common.ts comments to get more details, and each plugin code to see their default configuration (more examples)
 
+## Specific information of plugins
+
+### BPML
+
+To be bundled with webpack, the bpmn-js plugin requires that the Content-Security-Policy allow `font-src: data: *`. 
+As this is not the case with the version distributed by diagrams.net you must create a custom versionby forking
+the drawio repository and change this parameter. If not, the font won't be properly loaded and you will see squares
+instead of the tools icons (apart that, the diagram will be displayed and edited correctly)
+
+#### Specific BPML settings
+
+Extra parameters below:
+``` 
+  config: {
+    propertiesPanel: true,    // true to activate properties panel, false to hide it.
+  }
+```
 
 ## How to build
 
@@ -119,6 +137,9 @@ GPL v3.0
 Author : Rémi Peyronnet - 2021
 
 # Changelog
+
+# 2022-10-01 - v1.3
+- First version of BPMN-js plugin
 
 # 2022-05-07 - v1.2
 - Fixed global config option
