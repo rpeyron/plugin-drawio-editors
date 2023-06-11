@@ -11,10 +11,11 @@ const ENTRY = {
   tiptap: "./src/tiptap/tiptap-plugin.ts",
   quill: "./src/quill/quill-plugin.ts",
   bpmn: "./src/bpmn/bpmn-plugin.ts",
-  */
   asyncapi: "./src/asyncapi/asyncapi-plugin.tsx",
   swagger: "./src/swagger/swagger-plugin.ts",
   'api-pack': "./src/api-pack.js",
+    */
+  jsonschema: "./src/json-schema/json-schema-plugin.tsx",
 };
 
 module.exports = {

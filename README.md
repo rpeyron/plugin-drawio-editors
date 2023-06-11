@@ -8,6 +8,7 @@ Support now:
 * Markdown through rich-markdown-editor
 * HTML with Quill, TinyEditor, TipTap or EditorJS (see limitations in changelog)
 * BPMN with BPMN-js editor (from Camunda) - will not work with the official draw.io desktop version (see below)
+* JSON Schema (with [json-schema-editor-visual](https://github.com/Open-Federation/json-schema-editor-visual))
 
 
 ## Online Demo
