@@ -3,7 +3,14 @@ import  { mxWindow, mxUtils, mxResources, mxShape, mxCell, mxEvent, mxGeometry }
 
 import * as React from 'react';
 import ReactDOM from "react-dom";
-import AsyncApiComponent from "@asyncapi/react-component";
+// import AsyncApiComponent from "@asyncapi/react-component";
+
+import Playground from './playground/src/Playground';
+
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import '@asyncapi/react-component/lib/styles/fiori.css';
+import './playground/src/common/icons';
+
 
 // https://github.com/asyncapi/asyncapi-react
 import "@asyncapi/react-component/lib/styles/fiori.css";
@@ -15,16 +22,26 @@ export class AsyncApiEditorPlugin extends BaseEditor {
   component : any;
 
   onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
-    let maindiv = div.querySelector(`#editor_${this.name}_div`);
-    let schema = this.getCellValue(editorUi, cell);
-    this.component = ReactDOM.render(<AsyncApiComponent schema={schema} config={Object.assign({}, this.options.config)} />, maindiv);
-
-    //(<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';
+    // Code mirror does not like to be added when mwWindow is hidden, so we use onShowWindow instead
   }
 
+  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
+    let maindiv = div.querySelector(`#editor_${this.name}_div`);
+
+    // this.component = ReactDOM.render(<AsyncApiComponent schema={schema} config={Object.assign({}, this.options.config)} />, maindiv);
+    this.component = ReactDOM.render(<Playground />, maindiv);
+
+    //(<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';
+    let schema = this.getCellValue(editorUi, cell) || asyncApiDefaultText;
+    this.component.setState({
+        schema,
+        refreshing: true,
+    //   config: {...this.options.config}
+    })
+    super.onShowWindow(editorUi, div, win, cell)
+  }
   async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
-      //(this.component as AsyncApiComponent).
-      return "" //this.ui.specSelectors.specStr()
+      return this.component.state.schema
   }
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {

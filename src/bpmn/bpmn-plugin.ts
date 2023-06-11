@@ -6,14 +6,14 @@ import BpmnModeler from 'bpmn-js/lib/Modeler';
 import {
   BpmnPropertiesPanelModule,
   BpmnPropertiesProviderModule,
-} from 'bpmn-js-properties-panel';
+} from '@bpmn-io/properties-panel';
 
 
 import "bpmn-js/dist/assets/diagram-js.css";
 import "bpmn-js/dist/assets/bpmn-js.css";
 import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
 
-import "bpmn-js-properties-panel/dist/assets/properties-panel.css";
+import "@bpmn-io/properties-panel/dist/assets/properties-panel.css";
 
 
 import bpmnDefaultSVG from "./BPMN-logo.svg";

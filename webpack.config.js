@@ -3,15 +3,18 @@ const webpack = require("webpack");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 const ENTRY = {
+  /*
   editors: "./src/all-editors.js",
-  swagger: "./src/swagger/swagger-plugin.ts",
-  asyncapi: "./src/asyncapi/asyncapi-plugin.tsx",
   markdown: "./src/markdown/markdown-plugin.tsx",
   editorjs: "./src/editorjs/editorjs-plugin.ts",
   tinyeditor: "./src/tinyeditor/tinyeditor-plugin.ts",
   tiptap: "./src/tiptap/tiptap-plugin.ts",
   quill: "./src/quill/quill-plugin.ts",
   bpmn: "./src/bpmn/bpmn-plugin.ts",
+  */
+  asyncapi: "./src/asyncapi/asyncapi-plugin.tsx",
+  swagger: "./src/swagger/swagger-plugin.ts",
+  'api-pack': "./src/api-pack.js",
 };
 
 module.exports = {
