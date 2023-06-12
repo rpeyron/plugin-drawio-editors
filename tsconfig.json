@@ -8,6 +8,7 @@
     "jsx": "react",
     "allowJs": true,
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "typeRoots": [
       "node_modules/@types",
       "node_modules/@typed-mxgraph"

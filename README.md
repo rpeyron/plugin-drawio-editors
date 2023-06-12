@@ -4,10 +4,11 @@ This repository is a set of third party editors / viewer embedded in draw.io/dia
 
 Support now:
 * Swagger / OpenAPI through swagger-editor
-* AsyncApi through asyncapi (viewer only)
+* AsyncApi through asyncapi (playground)
 * Markdown through rich-markdown-editor
 * HTML with Quill, TinyEditor, TipTap or EditorJS (see limitations in changelog)
 * BPMN with BPMN-js editor (from Camunda) - will not work with the official draw.io desktop version (see below)
+* JSON Schema (with [json-schema-editor-visual](https://github.com/Open-Federation/json-schema-editor-visual))
 
 
 ## Online Demo
@@ -20,6 +21,9 @@ You will see a new palette at the bottom left of the screen, in which you will s
 ## Installation
 
 All editors are available either as standalone plugins, or all bundled in a single plugin. You can choose weither you need only one editor or all. Please note that as all dependancies are packed in the plugin, the resulting files are quite heavy and may take some time to load. 
+
+Note that recent versions of drawio-desktop deactivate by default plugins, so you need to use `--enable-plugins`. In addition, the default Content-Security-Policy (aka CSP) of drawio is very restrictive, so you may need to build your own drawio version with plugins activated and the appropriate CSP corresponding to the plugin you want to use.
+
 
 1. Open draw.io
 2. Select on the top menu bar `Extras`/`Plugins...`
@@ -137,6 +141,10 @@ GPL v3.0
 Author : Rémi Peyronnet - 2021
 
 # Changelog
+
+# 2023-06-11 - v1.4
+- Added Playground to asyncapi plugin
+- Fixed dependencies versions
 
 # 2022-10-01 - v1.3
 - First version of BPMN-js plugin
