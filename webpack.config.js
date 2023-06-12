@@ -3,24 +3,24 @@ const webpack = require("webpack");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 
 const ENTRY = {
-  /*
+  // Packs (but does not seem to save space)
   editors: "./src/all-editors.js",
-  markdown: "./src/markdown/markdown-plugin.tsx",
+  'api-pack': "./src/api-pack.js",
+  // Separate plugins
   editorjs: "./src/editorjs/editorjs-plugin.ts",
   tinyeditor: "./src/tinyeditor/tinyeditor-plugin.ts",
   tiptap: "./src/tiptap/tiptap-plugin.ts",
   quill: "./src/quill/quill-plugin.ts",
-  bpmn: "./src/bpmn/bpmn-plugin.ts",
   asyncapi: "./src/asyncapi/asyncapi-plugin.tsx",
   swagger: "./src/swagger/swagger-plugin.ts",
-  'api-pack': "./src/api-pack.js",
-    */
   jsonschema: "./src/json-schema/json-schema-plugin.tsx",
+  bpmn: "./src/bpmn/bpmn-plugin.ts",
+  markdown: "./src/markdown/markdown-plugin.tsx",
 };
 
 module.exports = {
   entry: ENTRY,
-  devtool: "inline-source-map",
+  // devtool: "inline-source-map",   // prevents production mode
   output: {
     filename: "[name]-plugin.webpack.js",
     path: path.resolve(__dirname, "dist"),

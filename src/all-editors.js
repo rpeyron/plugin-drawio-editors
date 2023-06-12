@@ -5,4 +5,6 @@ require('./tiptap/tiptap-plugin')
 require('./tinyeditor/tinyeditor-plugin')
 require('./editorjs/editorjs-plugin')
 require('./quill/quill-plugin')
-// require('./bpmn/bpmn-plugin')
+require('./bpmn/bpmn-plugin')
+require('./json-schema/json-schema-plugin')
+

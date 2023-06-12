@@ -142,8 +142,9 @@ Author : Rémi Peyronnet - 2021
 
 # Changelog
 
-# 2023-06-11 - 
+# 2023-06-11 - v1.4
 - Added Playground to asyncapi plugin
+- Fixed dependencies versions
 
 # 2022-10-01 - v1.3
 - First version of BPMN-js plugin
