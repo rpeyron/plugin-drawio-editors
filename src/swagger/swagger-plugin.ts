@@ -1,5 +1,4 @@
-import { BaseEditor, BaseEditorPaletteItem } from '../editor-common'
-import  { mxWindow, mxUtils, mxResources, mxShape, mxCell, mxEvent, mxGeometry } from "mxgraph";
+import { BaseEditorPaletteItem, BaseEditorPlugin, BaseEditorWindow } from '../editor-common'
 
 import SwaggerEditor from 'swagger-editor';
 import 'swagger-editor/dist/swagger-editor.css';
@@ -13,32 +12,36 @@ import openApi3DefaultText from './api-with-examples.yaml'
 import openApi3DefaultSVG from './OpenAPI_Logo_Stacked_Pantone-cropped.svg'
 
 
-export class SwaggerEditorPlugin extends BaseEditor {
+export class SwaggerEditorWindow extends BaseEditorWindow {
 
-  ui : any;
+  swaggerUi : any;
 
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
+  onFillWindow() {
+    let divEditor = this.divEditor
     // https://github.com/swagger-api/swagger-ui/blob/master/docs/usage/configuration.md
-    this.ui = SwaggerEditor({
-      dom_id: `#editor_${this.name}_div`,
+    let ui = SwaggerEditor({
+      dom_id: "#"+divEditor.id,
       layout: 'EditorLayout',
       ...this.options.config
-    });
-    this.ui.specActions.updateSpec(this.getCellValue(editorUi, cell));
-    (<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';
+    })
+    this.swaggerUi = ui;
+    ui.specActions.updateSpec(this.getCellValue());
+    (<HTMLElement>divEditor.querySelector('.Pane2')).style.overflow = 'auto';
   }
 
-  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
-    super.onShowWindow(editorUi, div, win, cell);
-    //@ts-ignore  undocumented maximize property
-    win.title.dispatchEvent(new Event('dblclick'));
-    (<HTMLElement>div.querySelector('.ace_text-input'))?.focus();
+  onShowWindow() {
+    super.onShowWindow();
+    this.win.maximize();
+    (<HTMLElement>this.divEditor.querySelector('.ace_text-input'))?.focus();
   }
 
 
-  getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
-      return this.ui.specSelectors.specStr()
+  getEditorValue() {
+    return (this.swaggerUi)?this.swaggerUi.specSelectors.specStr():""
   }
+}
+
+export class SwaggerEditorPlugin extends BaseEditorPlugin {
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
 
@@ -51,7 +54,8 @@ export class SwaggerEditorPlugin extends BaseEditor {
 
 }
 
-(window as any).pluginSwaggerEditorPlugin = new SwaggerEditorPlugin('swagger', {
+(window as any).pluginSwaggerEditorPlugin = SwaggerEditorPlugin;
+SwaggerEditorPlugin.initPlugin(SwaggerEditorWindow, 'swagger', {
     attributeName: "swaggerData",
     contextual: "Edit with Swagger Editor",
     title: "Swagger Editor",

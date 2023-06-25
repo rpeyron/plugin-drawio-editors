@@ -1,5 +1,4 @@
-import { BaseEditor, BaseEditorPaletteItem } from "../editor-common";
-import { mxWindow, mxShape, mxCell }  from "mxgraph";
+import { BaseEditorPaletteItem, BaseEditorPlugin, BaseEditorWindow } from "../editor-common";
 
 
 import '@fortawesome/fontawesome-free/js/fontawesome'
@@ -12,20 +11,14 @@ import tinyeditorDefaultSVG from "./square_1.svg";
 
 const tinyeditor = require('tiny-editor');
 
-export class TinyEditorPlugin extends BaseEditor {
+export class TinyEditorWindow extends BaseEditorWindow {
   component: any;
 
-
-  onFillWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    let maindiv = div.querySelector(`#editor_${this.name}_div`);
+  onFillWindow() {
+    let maindiv = this.divEditor;
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     (maindiv as HTMLElement).style.backgroundColor = "white";
-    let value = this.getCellValue(editorUi, cell);
+    let value = this.getCellValue();
     maindiv.setAttribute("data-tiny-editor", "")
     maindiv.innerHTML = value;
 
@@ -34,18 +27,12 @@ export class TinyEditorPlugin extends BaseEditor {
     require('tiny-editor/dist/bundle');
   }
 
-  onShowWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    super.onShowWindow(editorUi, div, win, cell);
+  async getEditorValue() {
+    return this.divEditor.innerHTML;
   }
 
-  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
-    return div.querySelector(`#editor_${this.name}_div`).innerHTML;
-  }
+}
+export class TinyEditorPlugin extends BaseEditorPlugin {
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
     if (!item.width) item.width = 20;
@@ -61,7 +48,8 @@ export class TinyEditorPlugin extends BaseEditor {
   }
 }
 
-(window as any).pluginTinyEditorPlugin = new TinyEditorPlugin("tinyeditor", {
+(window as any).pluginTinyEditorPlugin = TinyEditorPlugin;
+TinyEditorPlugin.initPlugin(TinyEditorWindow, "tinyeditor", {
   attributeName: "tinyeditorData",
   contextual: "Edit HTML with TinyEditor",
   title: "TinyEditor Editor",

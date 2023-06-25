@@ -27,6 +27,18 @@ export interface BaseEditorOptions {
     */
     config?: any;
 
+    /** Autoload: register to Drawio autaomatically (default: true)
+     * if false, has to be registered manually with declareUiFunctions
+     * declareUiFunctions can also be called from another UI instance
+     */
+    autoload?: boolean;
+
+    /**
+     * Window factory to create windows
+     * default to mxWindow
+     */
+    windowFactory?: typeof PluginWindowFactory;
+
 }
 
 export interface BaseEditorPaletteItem {
@@ -73,80 +85,337 @@ export interface BaseEditorPaletteItem {
 
 }
 
-export class BaseEditor {
+class PluginWindowFactory {
+
+  title: string;
+  contents: HTMLDivElement;
+
+  constructor(title: string, contents: HTMLDivElement, x: number, y: number, width: number, height: number) {
+    this.title = title;
+    this.contents = contents;
+  }
+
+  show() {  }
+
+  maximize() {  }
+
+  destroy() {}
+
+}
+
+class mxWindowFactory extends PluginWindowFactory {
+
+  win: mxWindow | undefined = undefined;
+
+  constructor(title: string, contents: HTMLDivElement, x: number, y: number, width: number, height: number) {
+    super(title, contents, x, y, width, height);
+    let win = new mxWindow(title, contents, x, y, width, height, true, true);
+    win.setResizable(true);
+    win.setMaximizable(true);
+    win.setClosable(true);
+    this.win = win;
+  }
+
+  show(): void {
+    this.win?.show()
+  }
+
+  destroy(): void {
+    this.win?.destroy()
+  }
+
+  maximize(): void {
+    //@ts-ignore  undocumented maximize property
+    this.win?.title?.dispatchEvent(new Event('dblclick'));
+  }
+
+
+}
+
+
+
+type BaseEditorWindowClassType = new (plugin: BaseEditorPlugin, editorUi: any, cell: mxCell, instance?: number) => BaseEditorWindow;
+
+/**
+ * BaseEditorWindow is the instance of the window to edit a given cell
+ */
+export class BaseEditorWindow {
 
   editorUi: any;
-  name: string;
+  cell: mxCell;
+
+  divEditorId: string;
+  divButtonsId: string;
+
+  pluginName: string;
   options: BaseEditorOptions;
 
-  constructor(name: string, options : BaseEditorOptions) {
-    this.name = name;
-    this.options = options;
+  win?: PluginWindowFactory;
 
-    let me = this;
-    //@ts-ignore
-    Draw.loadPlugin(function (editorUi: any) {
-      me.declareUiFunctions(editorUi);
-    })
+  divEditor: HTMLDivElement;
+
+  constructor(plugin: BaseEditorPlugin, editorUi: any, cell: mxCell, instance?: number) {
+
+    let pluginName = plugin.staticClass.pluginName;
+    let options = plugin.staticClass.options;
+
+    this.pluginName = pluginName;
+    this.options = options;
+    this.editorUi = editorUi;
+
+    this.cell = cell;
+
+    // If no instance we use timestamp to get some unicity
+    if (!instance) instance =  Date.now()
+
+    this.divEditorId = `editor_${pluginName}_div_${instance}` 
+    this.divButtonsId  = `plugin_editor_${pluginName}_buttons_${instance}` 
+
+    // Main element
+    let div = document.createElement('div');
+    div.style.cssText = "display: flex; flex-direction: column; height: inherit;";
+    div.innerHTML = `
+    <div id="${this.divEditorId}" class="editor_${pluginName}_div" style="flex: 1; /*text-align: center;*/  overflow-y: scroll;"></div>
+    <div id="${this.divButtonsId}" class="plugin_editor_${pluginName}_buttons" style="flex: initial; text-align: right; align-self: flex-end; padding: 8px;"></div>
+    `;
+
+    let buttons = div.querySelector("#"+this.divButtonsId) as HTMLDivElement;
+    let divEditor = div.querySelector("#"+this.divEditorId) as HTMLDivElement;
+
+    if (!buttons) return;
+    if (!divEditor) return;
+
+    this.divEditor = divEditor;
+
+    // Create mxWindow
+    let win_width = 800;
+    let win_height = 640;
+    if (editorUi.diagramContainer.clientWidth < win_width) win_width = editorUi.diagramContainer.clientWidth - 20;
+    if (editorUi.diagramContainer.clientHeight < win_height) win_height = editorUi.diagramContainer.clientHeight - 20;
+
+    var windowFactory = (options.windowFactory ?? mxWindowFactory)
+    var win = new windowFactory(options.title, div, 
+      (editorUi.diagramContainer.clientWidth - win_width) / 2 + editorUi.diagramContainer.offsetLeft, 
+      (editorUi.diagramContainer.clientHeight - win_height) / 2 + editorUi.diagramContainer.offsetTop, 
+      win_width, 
+      win_height);
+
+    this.win = win;
+
+    // Cancel button behavior
+    var cancelBtn = mxUtils.button(mxResources.get('cancel'), async () => { 
+      let cellValue = this.getCellValue().replace(/(\r\n|\n\r)/g,"\n")
+      let currentValue = (await this.getEditorValue()).replace(/(\r\n|\n\r)/g,"\n")
+      // Check if content has not been changed or ask to discard
+      if (  (cellValue == currentValue) ||
+          (mxUtils.confirm(mxResources.get('changesNotSaved')+"\n"+mxResources.get('areYouSure')))  ) {
+            this.cancel(); 
+    }});
+    cancelBtn.className = 'geBtn';
+    if (editorUi.editor.cancelFirst) {  buttons.appendChild(cancelBtn); }
+
+    // Save without closing button behavior
+    var saveBtn = mxUtils.button(mxResources.get('save'), (evt) => { this.validate(false); });
+    buttons.appendChild(saveBtn);
+    saveBtn.className = 'geBtn';
+
+    // OK button behavior
+    var okBtn = mxUtils.button(mxResources.get('saveAndExit'), (evt) => { this.validate(true); });
+    buttons.appendChild(okBtn);
+    okBtn.className = 'geBtn gePrimaryBtn';
+    if (!editorUi.editor.cancelFirst) { buttons.appendChild(cancelBtn); }
+
+    // Prevent drawio keydown listeners to allow cut/copy/paste
+    div.addEventListener('keydown', (event) => {
+      event.stopPropagation()
+    });
+
+    // Call function to add actual editor
+    this.onFillWindow();
+
+    // Show Window
+    win.show();
+
+    // Call function to focus editor
+    this.onShowWindow();
+  }
+
+
+  // Default implementation does nothing
+  onFillWindow() {
 
   }
 
-  declareUiFunctions(editorUi: any) {
-    let me = this;
+  // Default implementation does nothing
+  onShowWindow() {
+    if (this.editorUi && 
+        this.editorUi.editor && 
+        this.editorUi.editor.graph && 
+        this.editorUi.editor.graph.tooltipHandler && 
+        this.editorUi.editor.graph.tooltipHandler.hide)
+            this.editorUi.editor.graph.tooltipHandler.hide();
+  }
 
-    this.editorUi = editorUi;
 
-    // Handle options
+  // Default implementation of validate
+  async validate(close: boolean = true) {
+    let editorUi = this.editorUi;
+    if (editorUi.spinner.spin(document.body, mxResources.get('inserting'))) {
+      var graph = editorUi.editor.graph;
+      graph.getModel().beginUpdate();
+      this.setCellValue(await this.getEditorValue());
+      graph.getModel().endUpdate();
+      graph.refresh(this.cell);
+      editorUi.spinner.stop();
+      if (this.cell != null) {
+        graph.setSelectionCell(this.cell);
+        graph.scrollCellToVisible(this.cell);
+      }
+    }
+    if (close) this.win.destroy();
+  }
 
+  // Default implementation of cancel
+  cancel() {
+    this.win.destroy();
+  }
+
+  // Default implementation to get editor value, used in default implementation of validate
+  async getEditorValue() : Promise<string> {
+    return ""  
+  }
+
+  // Default implementation to get shape value
+  getCellValue() : string {
+    if (this.cell)
+      return this.cell.getAttribute(this.options.attributeName, '')
+    return "";
+  }
+
+  // Default implementation to set shape value
+  setCellValue(text: string) {
+    if (this.cell && this.cell.value) {
+        //@ts-ignore  isNode does not require always the node name
+        if (mxUtils.isNode(this.cell.value)) {
+          this.cell.setAttribute(this.options.attributeName, text);
+        }
+    }
+  }
+
+}
+
+
+/**
+ * BaseEditorPlugin is the instance of the plugin to a specific drawio instance
+ * It has also static functions to register items
+ */
+export class BaseEditorPlugin {
+
+  // Static functions : the collection of plugins instances
+
+  static pluginName: string;
+  static options: BaseEditorOptions;
+  static pluginInstances: BaseEditorPlugin[] = []
+  static instanceWindowCount: number=0;
+
+  static editorWindowClass: BaseEditorWindowClassType;
+
+  static initPlugin(editorWindowClass: BaseEditorWindowClassType, name: string, options : BaseEditorOptions) {
+    this.pluginName = name;
+    this.editorWindowClass = editorWindowClass;
+
+    this.setOptions(options)
+
+    // Manage options
+
+    // If autoload is not desactivated, we register to load the plugin
+    if (this.options.autoload !== false) {
+      //@ts-ignore
+      Draw.loadPlugin((editorUi: any) => {
+        this.registerUi(editorUi);
+      })
+    }
+  }
+
+  static registerUi(editorUi: any) {
+    // We create and store a new plugin instance with the UI
+    this.pluginInstances.push(Reflect.construct(this, [editorUi]));
+  }
+
+  static setOptions(defaultOptions: BaseEditorOptions, overrideOptions?: BaseEditorOptions) {
+    let pluginName = BaseEditorPlugin.pluginName
     const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray
+
     // Default options are provided by the plugin
-    let options = this.options
+    let options = defaultOptions
 
     // Then apply options of defaultEditorsConfig if any (define it in PreConfig.js)
     //@ts-ignore
     let defaultEditorsConfig = window.defaultEditorsConfig;
-    if (defaultEditorsConfig && defaultEditorsConfig[this.name]) {
-      options = merge(options, defaultEditorsConfig[this.name], { arrayMerge: overwriteMerge })
+    if (defaultEditorsConfig && defaultEditorsConfig[pluginName]) {
+      options = merge(options, defaultEditorsConfig[pluginName], { arrayMerge: overwriteMerge })
     }
 
     // Then apply options of local user
     //@ts-ignore
     let userConfig = window.Editor.config;
-    if (userConfig && userConfig.defaultEditorsConfig && userConfig.defaultEditorsConfig[this.name]) {
-      options = merge(options, userConfig.defaultEditorsConfig[this.name], { arrayMerge: overwriteMerge })
+    if (userConfig && userConfig.defaultEditorsConfig && userConfig.defaultEditorsConfig[pluginName]) {
+      options = merge(options, userConfig.defaultEditorsConfig[pluginName], { arrayMerge: overwriteMerge })
     }
 
     if (!options.title || options.title.length == 0) { options.title = "Editor" }
 
-    this.options = options;
+    // Then override
+    if (overrideOptions) options = merge(options, overrideOptions)
+    
+    this.options = options
 
+  }
 
-    // Double clic
-    if (!this.options.ignoreDoubleClic) {
-      editorUi.editor.graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
+  // Instance functions
+
+  editorUi: any;
+  staticClass: typeof BaseEditorPlugin;
+
+  constructor(editorUi: any) {
+    this.editorUi = editorUi
+    this.declareUiFunctions()
+  }
+
+  declareUiFunctions() {
+
+    this.staticClass = this.constructor as typeof BaseEditorPlugin
+    
+    let pluginName = this.staticClass.pluginName
+    let options = this.staticClass.options
+
+    let editorUi = this.editorUi;
+
+    // Register Double clic
+    if (!options.ignoreDoubleClic) {
+      editorUi.editor.graph.addListener(mxEvent.DOUBLE_CLICK, (sender, evt) => {
         var cell = evt.getProperty("cell");
-        if (me.isCellHandled(cell)) { 
+        if (this.isCellHandled(cell)) { 
           evt.consume();
-          me.showDialogCell(editorUi, cell);
+          this.showDialogCell(cell);
         }
       });
     }
 
-    // Contextual
-    if (this.options.contextual && (this.options.contextual.length > 0)) {
+    // Register Contextual
+    if (options.contextual && (options.contextual.length > 0)) {
       let prevPopupMethod = editorUi.editor.graph.popupMenuHandler.factoryMethod;
-      editorUi.editor.graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
-      { 
+      editorUi.editor.graph.popupMenuHandler.factoryMethod = (menu, cell, evt) => { 
         prevPopupMethod(menu, cell, evt);
-        if(me.isCellHandled(cell)) {
-          menu.addItem(me.options.contextual, null, function() { 
-            me.showDialogCell(editorUi, cell);
+        if(this.isCellHandled(cell)) {
+          menu.addItem(options.contextual, null, function() { 
+            this.showDialogCell(editorUi, cell);
           })
       }}
     }
 
-    // Palette Items
-    for(let item of this.options.paletteItems) {
+    // Create Palette Items
+    for(let item of options.paletteItems) {
 
       let paletteName = (typeof item.palette == "string") ? item.palette : item.palette.name;
       let paletteLabel = (typeof item.palette == "string") ? item.palette : item.palette.label;
@@ -170,7 +439,7 @@ export class BaseEditor {
          // if (!node) { let doc = mxUtils.createXmlDocument(); node = doc.createElement('editor') }
          let cell = new mxCell(node, new mxGeometry(0, 0, item.width, item.height), "shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:"+item.icon+";"+item.style);
          cell.vertex = true;
-         cell.setAttribute(me.options.attributeName, item.text);
+         cell.setAttribute(options.attributeName, item.text);
          let itemelt = editorUi.sidebar.createVertexTemplateFromCells([cell], item.width, item.height, item.label, true, true)
          if ((palette) && (palette.firstChild)) palette.firstChild.appendChild(itemelt)
       }
@@ -194,140 +463,17 @@ export class BaseEditor {
     if (!cell) { return false; }
     //@ts-ignore isNode does not require node name
     if (mxUtils.isNode(cell.value)) {
-      if (cell.getAttribute(this.options.attributeName, false) !== false) {
+      if (cell.getAttribute(this.staticClass.options.attributeName, false) !== false) {
         return true;
       }
     }
     return false;
   }
 
-  showDialogCell(editorUi: any, cell: mxCell) {
-    let me = this;
-
-    // Main element
-    let div = document.createElement('div');
-    div.style.cssText = "display: flex; flex-direction: column; height: inherit;";
-    div.innerHTML = `
-      <div id="editor_${me.name}_div" style="flex: 1; /*text-align: center;*/  overflow-y: scroll;"></div>
-      <div id="plugin_editor_${me.name}_buttons" style="flex: initial; text-align: right; align-self: flex-end; padding: 8px;"></div>
-      `;
-
-    let buttons = div.querySelector(`#plugin_editor_${me.name}_buttons`);
-
-    // Create mxWindow
-    let win_width = 800;
-    let win_height = 640;
-    if (editorUi.diagramContainer.clientWidth < win_width) win_width = editorUi.diagramContainer.clientWidth - 20;
-    if (editorUi.diagramContainer.clientHeight < win_height) win_height = editorUi.diagramContainer.clientHeight - 20;
-
-    var win = new mxWindow(this.options.title, div, 
-      (editorUi.diagramContainer.clientWidth - win_width) / 2 + editorUi.diagramContainer.offsetLeft, 
-      (editorUi.diagramContainer.clientHeight - win_height) / 2 + editorUi.diagramContainer.offsetTop, 
-      win_width, 
-      win_height, 
-      true, true);
-    win.setResizable(true);
-    win.setMaximizable(true);
-    win.setClosable(true);
-
-    // Cancel button behavior
-    var cancelBtn = mxUtils.button(mxResources.get('cancel'), async function () { 
-      let cellValue = me.getCellValue(editorUi, cell).replace(/(\r\n|\n\r)/g,"\n")
-      let currentValue = (await me.getEditorValue(editorUi, div, win)).replace(/(\r\n|\n\r)/g,"\n")
-      // Check if content has not been changed or ask to discard
-      if (  (cellValue == currentValue) ||
-          (mxUtils.confirm(mxResources.get('changesNotSaved')+"\n"+mxResources.get('areYouSure')))  ) {
-            me.cancel(editorUi, div, win, cell); 
-    }});
-    cancelBtn.className = 'geBtn';
-    if (editorUi.editor.cancelFirst) {  buttons.appendChild(cancelBtn); }
-
-    // Save without closing button behavior
-    var saveBtn = mxUtils.button(mxResources.get('save'), function (evt) { me.validate(editorUi, div, win, cell, false); });
-    buttons.appendChild(saveBtn);
-    saveBtn.className = 'geBtn';
-
-    // OK button behavior
-    var okBtn = mxUtils.button(mxResources.get('saveAndExit'), function (evt) { me.validate(editorUi, div, win, cell, true); });
-    buttons.appendChild(okBtn);
-    okBtn.className = 'geBtn gePrimaryBtn';
-    if (!editorUi.editor.cancelFirst) { buttons.appendChild(cancelBtn); }
-
-    // Prevent drawio keydown listeners to allow cut/copy/paste
-    div.addEventListener('keydown', (event) => {
-      event.stopPropagation()
-    });
-
-    // Call function to add actual editor
-    me.onFillWindow(editorUi, div, win, cell);
-
-    // Show Window
-    win.show();
-
-    // Call function to focus editor
-    me.onShowWindow(editorUi, div, win, cell);
+  showDialogCell(cell: mxCell) {
+    let pluginWindow = new this.staticClass.editorWindowClass(this, this.editorUi, cell, this.staticClass.instanceWindowCount++)
   }
-
-
-  // Default implementation does nothing
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
-
-  }
-
-  // Default implementation does nothing
-  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
-    if (this.editorUi && 
-        this.editorUi.editor && 
-        this.editorUi.editor.graph && 
-        this.editorUi.editor.graph.tooltipHandler && 
-        this.editorUi.editor.graph.tooltipHandler.hide)
-            this.editorUi.editor.graph.tooltipHandler.hide();
-  }
-
-
-  // Default implementation of validate
-  async validate(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell, close: boolean = true) {
-    if (editorUi.spinner.spin(document.body, mxResources.get('inserting'))) {
-      var graph = editorUi.editor.graph;
-      graph.getModel().beginUpdate();
-      this.setCellValue(editorUi, cell, await this.getEditorValue(editorUi, div, win));
-      graph.getModel().endUpdate();
-      graph.refresh(cell);
-      editorUi.spinner.stop();
-      if (cell != null) {
-        graph.setSelectionCell(cell);
-        graph.scrollCellToVisible(cell);
-      }
-    }
-    if (close) win.destroy();
-  }
-
-  // Default implementation of cancel
-  cancel(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
-    win.destroy();
-  }
-
-  // Default implementation to get editor value, used in default implementation of validate
-  async getEditorValue(editorUi: any, div?: HTMLDivElement, win?: mxWindow) : Promise<string> {
-    return ""  
-  }
-
-  // Default implementation to get shape value
-  getCellValue(editorUi: any, cell: mxCell) : string {
-    if (cell)
-      return cell.getAttribute(this.options.attributeName, '')
-    return "";
-  }
-
-  // Default implementation to set shape value
-  setCellValue(editorUi: any, cell: mxCell, text: string) {
-    if (cell && cell.value) {
-        //@ts-ignore  isNode does not require always the node name
-        if (mxUtils.isNode(cell.value)) {
-          cell.setAttribute(this.options.attributeName, text);
-        }
-    }
-  }
+  
 
 }
 
