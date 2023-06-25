@@ -142,6 +142,8 @@ Author : Rémi Peyronnet - 2021
 
 # Changelog
 
+# 2023-06-25 - v2.0
+- New plugin structure (with breaking changes) to allow multiple instances
 # 2023-06-11 - v1.4
 - Added Playground to asyncapi plugin
 - Fixed dependencies versions

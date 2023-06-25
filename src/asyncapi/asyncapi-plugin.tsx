@@ -1,5 +1,4 @@
-import { BaseEditor, BaseEditorPaletteItem } from '../editor-common'
-import  { mxWindow, mxUtils, mxResources, mxShape, mxCell, mxEvent, mxGeometry } from "mxgraph";
+import { BaseEditorPaletteItem, BaseEditorPlugin, BaseEditorWindow } from '../editor-common'
 
 import * as React from 'react';
 import ReactDOM from "react-dom";
@@ -17,32 +16,38 @@ import "@asyncapi/react-component/lib/styles/fiori.css";
 
 import asyncApiDefaultText from './asyncapi-example.yaml'
 
-export class AsyncApiEditorPlugin extends BaseEditor {
+export class AsyncApiEditorWindow extends BaseEditorWindow {
 
   component : any;
 
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
+  onFillWindow() {
     // Code mirror does not like to be added when mwWindow is hidden, so we use onShowWindow instead
   }
 
-  onShowWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
-    let maindiv = div.querySelector(`#editor_${this.name}_div`);
+  onShowWindow() {
+    let maindiv = this.divEditor; // .querySelector(`#editor_${this.name}_div`);
 
     // this.component = ReactDOM.render(<AsyncApiComponent schema={schema} config={Object.assign({}, this.options.config)} />, maindiv);
     this.component = ReactDOM.render(<Playground />, maindiv);
 
     //(<HTMLElement>div.querySelector('.Pane2')).style.overflow = 'auto';
-    let schema = this.getCellValue(editorUi, cell) || asyncApiDefaultText;
+    let schema = this.getCellValue() || asyncApiDefaultText;
     this.component.setState({
         schema,
         refreshing: true,
     //   config: {...this.options.config}
     })
-    super.onShowWindow(editorUi, div, win, cell)
+    super.onShowWindow()
   }
-  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
+  async getEditorValue() {
       return this.component.state.schema
   }
+
+}
+
+
+export class AsyncApiEditorPlugin extends BaseEditorPlugin {
+
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
 
@@ -56,7 +61,9 @@ export class AsyncApiEditorPlugin extends BaseEditor {
 
 }
 
-(window as any).pluginAsyncApiEditorPlugin = new AsyncApiEditorPlugin('asyncApi', {
+(window as any).pluginAsyncApiEditorPlugin = AsyncApiEditorPlugin
+
+AsyncApiEditorPlugin.initPlugin(AsyncApiEditorWindow, 'asyncApi', {
     attributeName: "asyncApiData",
     contextual: "Edit with Async API Editor",
     title: "AsyncAPI Editor",

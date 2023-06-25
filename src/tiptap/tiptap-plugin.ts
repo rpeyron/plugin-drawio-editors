@@ -1,4 +1,4 @@
-import { BaseEditor, BaseEditorPaletteItem } from "../editor-common";
+import { BaseEditorPaletteItem, BaseEditorPlugin, BaseEditorWindow } from "../editor-common";
 import { mxWindow,  mxShape, mxCell } from "mxgraph";
 
 import { Editor } from "@tiptap/core";
@@ -7,19 +7,14 @@ import StarterKit from "@tiptap/starter-kit";
 let tiptapDefaultText = "Default";
 import tiptapDefaultSVG from "!!raw-loader!./tiptap.svg"; 
 
-export class TiptapEditorPlugin extends BaseEditor {
+export class TiptapEditorWindow extends BaseEditorWindow {
   component: any;
 
-  onFillWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    let maindiv = div.querySelector(`#editor_${this.name}_div`);
+  onFillWindow() {
+    let maindiv = this.divEditor;
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     (maindiv as HTMLElement).style.backgroundColor = "white";
-    let value = this.getCellValue(editorUi, cell);
+    let value = this.getCellValue();
     this.component = new Editor({
       element: maindiv,
       extensions: [StarterKit],
@@ -28,18 +23,12 @@ export class TiptapEditorPlugin extends BaseEditor {
     });
   }
 
-  onShowWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    super.onShowWindow(editorUi, div, win, cell);
-  }
-
-  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
+  async getEditorValue() {
     return (this.component as Editor).getHTML();
   }
+
+}
+export class TiptapEditorPlugin extends BaseEditorPlugin {
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
     if (!item.width) item.width = 32;
@@ -55,7 +44,8 @@ export class TiptapEditorPlugin extends BaseEditor {
   }
 }
 
-(window as any).pluginTiptapEditorPlugin = new TiptapEditorPlugin("tiptap", {
+(window as any).pluginTiptapEditorPlugin = TiptapEditorPlugin;
+TiptapEditorPlugin.initPlugin(TiptapEditorWindow, "tiptap", {
   attributeName: "tiptapData",
   contextual: "Edit HTML with TipTap",
   title: "TipTap Editor",

@@ -1,4 +1,4 @@
-import { BaseEditor, BaseEditorPaletteItem } from '../editor-common'
+import { BaseEditorPaletteItem, BaseEditorPlugin, BaseEditorWindow } from '../editor-common'
 import  { mxWindow, mxUtils, mxResources, mxShape, mxCell, mxEvent, mxGeometry } from "mxgraph";
 
 import * as React from 'react';
@@ -37,28 +37,31 @@ const jsonSchemaDefaultText = `
 
 
 
-export class JsonSchemaEditorPlugin extends BaseEditor {
+export class JsonSchemaEditorWindow extends BaseEditorWindow {
 
   component : any;
   curData : string = "";
 
-  onFillWindow(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell) {
+  onFillWindow() {
     const option = {}
-    let maindiv = div.querySelector(`#editor_${this.name}_div`);
-    this.curData = this.getCellValue(editorUi, cell) || jsonSchemaDefaultText;
+    this.curData = this.getCellValue() || jsonSchemaDefaultText;
 
     // this.component = ReactDOM.render(<AsyncApiComponent schema={schema} config={Object.assign({}, this.options.config)} />, maindiv);
     const SchemaEditor = schemaEditor(option)
     this.component = ReactDOM.render(<SchemaEditor 
       data={this.curData}
       onChange={(lastData) => { this.curData = lastData}}
-    />, maindiv);
+    />, this.divEditor);
 
   }
 
-  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
+  async getEditorValue() {
       return this.curData
   }
+}
+
+
+export class JsonSchemaEditorPlugin extends BaseEditorPlugin {
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
 
@@ -72,7 +75,8 @@ export class JsonSchemaEditorPlugin extends BaseEditor {
 
 }
 
-(window as any).pluginAsyncApiEditorPlugin = new JsonSchemaEditorPlugin('jsonSchema', {
+(window as any).pluginAsyncApiEditorPlugin = JsonSchemaEditorPlugin;
+JsonSchemaEditorPlugin.initPlugin(JsonSchemaEditorWindow, 'jsonSchema', {
     attributeName: "jsonSchemaData",
     contextual: "Edit with JSON Schema Editor",
     title: "JSON Schema Editor",

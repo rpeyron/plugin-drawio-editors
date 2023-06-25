@@ -1,4 +1,4 @@
-import { BaseEditor, BaseEditorPaletteItem } from "../editor-common";
+import { BaseEditorPaletteItem, BaseEditorPlugin, BaseEditorWindow } from "../editor-common";
 import { mxWindow, mxShape, mxCell } from "mxgraph";
 
 import BpmnModeler from 'bpmn-js/lib/Modeler';
@@ -34,17 +34,12 @@ let  bpmnDefaultXML = `
 </bpmn2:definitions>
 `;
 
-export class BPMNEditorPlugin extends BaseEditor {
+export class BPMNEditorWindow extends BaseEditorWindow {
 
   component: BpmnModeler;
 
-  async onFillWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    let maindiv = div.querySelector(`#editor_${this.name}_div`) as HTMLDivElement;
+  async onFillWindow() {
+    let maindiv = this.divEditor;
     maindiv.style.padding = "8px 0px 0px 8px";
     maindiv.style.backgroundColor = "white";
     maindiv.innerHTML = `<div class="bpmn_modeler" style="display: flex; height: 100%;">
@@ -62,7 +57,7 @@ export class BPMNEditorPlugin extends BaseEditor {
     }
 
     if (this.options.config?.propertiesPanel) {
-      let propdiv = div.querySelector(`#bpmn_properties`) as HTMLDivElement
+      let propdiv = maindiv.querySelector(`#bpmn_properties`) as HTMLDivElement
       if (propdiv) propdiv.style.display="block"
       modelerOptions.propertiesPanel = {
         parent: '#bpmn_properties'
@@ -77,7 +72,7 @@ export class BPMNEditorPlugin extends BaseEditor {
     this.component = new BpmnModeler(modelerOptions)
     console.log("BPMN Component:", this, this.component, modelerOptions)
 
-    let value = this.getCellValue(editorUi, cell);
+    let value = this.getCellValue();
     try {
       await this.component.importXML(value);
       // container.removeClass('with-error').addClass('with-diagram');
@@ -88,26 +83,17 @@ export class BPMNEditorPlugin extends BaseEditor {
     }
   }
 
-  onShowWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    super.onShowWindow(editorUi, div, win, cell);
-  }
-
-  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
+  async getEditorValue() {
     // const { svg } = await modeler.saveSVG();
     const { xml } = await this.component.saveXML({ format: true });
     return xml
   }
 
-  async validate(editorUi: any, div: HTMLDivElement, win: mxWindow, cell: mxCell, close: boolean = true) {
+  async validate(close: boolean = true) {
 
     // Replace cell with SVG
     const { svg } = await this.component.saveSVG();
-    let cellStyle = cell.getStyle();
+    let cellStyle = this.cell.getStyle();
     let cellElts = cellStyle.split(";");
     let newImage = "image=data:image/svg+xml," + btoa(svg);
     let newStyle = cellElts.map((e) => { 
@@ -117,9 +103,11 @@ export class BPMNEditorPlugin extends BaseEditor {
       if (e.startsWith('imageAspect=')) { return null } 
       return e
     } ).filter(e => e).join(";")
-    cell.setStyle(newStyle);
-    await super.validate(editorUi, div, win, cell, close);
+    this.cell.setStyle(newStyle);
+    await super.validate(close);
   }
+}
+  export class BPMNEditorPlugin extends BaseEditorPlugin {
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
     if (!item.width) item.width = 50;
@@ -134,7 +122,8 @@ export class BPMNEditorPlugin extends BaseEditor {
   }
 }
 
-(window as any).pluginBPMNEditorPlugin = new BPMNEditorPlugin("BPMN", {
+(window as any).pluginBPMNEditorPlugin = BPMNEditorPlugin;
+BPMNEditorPlugin.initPlugin(BPMNEditorWindow, "BPMN", {
   attributeName: "bpmnData",
   contextual: "Edit BPMN",
   title: "BPMN Editor",

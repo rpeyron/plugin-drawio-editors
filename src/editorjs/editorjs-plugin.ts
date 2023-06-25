@@ -1,4 +1,4 @@
-import { BaseEditor, BaseEditorPaletteItem } from "../editor-common";
+import { BaseEditorPaletteItem, BaseEditorPlugin, BaseEditorWindow } from "../editor-common";
 import {  mxWindow,  mxShape, mxCell,} from "mxgraph";
 
 import EditorJS from '@editorjs/editorjs';
@@ -8,43 +8,31 @@ import EditorJS from '@editorjs/editorjs';
 let editorjsDefaultText = "{}";
 import editorjsDefaultSVG from "./editorjs.svg";
 
-export class EditorjsEditorPlugin extends BaseEditor {
+export class EditorjsEditorWindow extends BaseEditorWindow {
   component: any;
 
-  onFillWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    let maindiv = div.querySelector(`#editor_${this.name}_div`);
+  onFillWindow() {
+    let maindiv = this.divEditor;
     (maindiv as HTMLElement).style.padding = "8px 0px 0px 8px";
     (maindiv as HTMLElement).style.backgroundColor = "white";
-    let value = this.getCellValue(editorUi, cell);
+    let value = this.getCellValue();
     let data = {}
     try {
       data = JSON.parse(value)
     } catch(e) {console.log(e)}
     this.component = new EditorJS({
-      holder: `editor_${this.name}_div`,
+      holder: maindiv.id,
       data: data,
       ...this.options.config
     });
     
   }
 
-  onShowWindow(
-    editorUi: any,
-    div: HTMLDivElement,
-    win: mxWindow,
-    cell: mxCell
-  ) {
-    super.onShowWindow(editorUi, div, win, cell);
-  }
-
-  async getEditorValue(editorUi: any, div: HTMLDivElement, win: mxWindow) {
+  async getEditorValue() {
     return await this.component.save()
   }
+}
+export class EditorjsEditorPlugin extends BaseEditorPlugin {
 
   setDefaultsPaletteItem(item: BaseEditorPaletteItem) {
     if (!item.width) item.width = 20;
@@ -60,7 +48,8 @@ export class EditorjsEditorPlugin extends BaseEditor {
   }
 }
 
-(window as any).pluginEditorjsEditorPlugin = new EditorjsEditorPlugin("editorjs", {
+(window as any).pluginEditorjsEditorPlugin = EditorjsEditorPlugin;
+EditorjsEditorPlugin.initPlugin(EditorjsEditorWindow, "editorjs", {
   attributeName: "editorjsData",
   contextual: "Edit with EditorJS",
   title: "EditorJS Editor",
