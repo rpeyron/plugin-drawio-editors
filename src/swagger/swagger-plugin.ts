@@ -31,7 +31,6 @@ export class SwaggerEditorWindow extends BaseEditorWindow {
 
   onShowWindow() {
     super.onShowWindow();
-    this.win.maximize();
     (<HTMLElement>this.divEditor.querySelector('.ace_text-input'))?.focus();
   }
 
@@ -59,6 +58,7 @@ SwaggerEditorPlugin.initPlugin(SwaggerEditorWindow, 'swagger', {
     attributeName: "swaggerData",
     contextual: "Edit with Swagger Editor",
     title: "Swagger Editor",
+    maximize: true,
     paletteItems: [
         {
             name: "swagger",

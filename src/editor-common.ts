@@ -34,6 +34,11 @@ export interface BaseEditorOptions {
     autoload?: boolean;
 
     /**
+     * Maximize window (default: false)
+     */
+    maximize?: boolean
+
+    /**
      * Window factory to create windows
      * default to mxWindow
      */
@@ -157,7 +162,7 @@ export class BaseEditorWindow {
   constructor(plugin: BaseEditorPlugin, editorUi: any, cell: mxCell, instance?: number) {
 
     let pluginName = plugin.staticClass.pluginName;
-    let options = plugin.staticClass.options;
+    let options = plugin.options;
 
     this.pluginName = pluginName;
     this.options = options;
@@ -235,6 +240,9 @@ export class BaseEditorWindow {
 
     // Show Window
     win.show();
+
+    // Maximize if needed
+    if (options.maximize) win.maximize()
 
     // Call function to focus editor
     this.onShowWindow();
@@ -314,22 +322,22 @@ export class BaseEditorPlugin {
   // Static functions : the collection of plugins instances
 
   static pluginName: string;
-  static options: BaseEditorOptions;
+  static defaultPluginOptions: BaseEditorOptions;
   static pluginInstances: BaseEditorPlugin[] = []
   static instanceWindowCount: number=0;
 
   static editorWindowClass: BaseEditorWindowClassType;
 
-  static initPlugin(editorWindowClass: BaseEditorWindowClassType, name: string, options : BaseEditorOptions) {
+  static initPlugin(editorWindowClass: BaseEditorWindowClassType, name: string, defaultPluginOptions : BaseEditorOptions) {
     this.pluginName = name;
     this.editorWindowClass = editorWindowClass;
 
-    this.setOptions(options)
+    this.defaultPluginOptions = defaultPluginOptions;
 
     // Manage options
 
     // If autoload is not desactivated, we register to load the plugin
-    if (this.options.autoload !== false) {
+    if (this.defaultPluginOptions.autoload !== false) {
       //@ts-ignore
       Draw.loadPlugin((editorUi: any) => {
         this.registerUi(editorUi);
@@ -342,8 +350,38 @@ export class BaseEditorPlugin {
     this.pluginInstances.push(Reflect.construct(this, [editorUi]));
   }
 
-  static setOptions(defaultOptions: BaseEditorOptions, overrideOptions?: BaseEditorOptions) {
-    let pluginName = BaseEditorPlugin.pluginName
+  static getInstance(ui?: any) {
+    let instance = this.pluginInstances[0]
+    if (ui) instance = this.pluginInstances.find(i => ui == i.editorUi)
+    return instance
+  }
+
+  static showDialogCell(cell: mxCell, ui?: any) {
+    let instance = this.getInstance[ui]
+    if (instance) instance.showDialogCell(cell)
+  }
+
+  static isCellHandled(cell: mxCell, ui?: any) {
+    let instance = this.getInstance[ui]
+    if (instance) return instance.isCellHandled(cell)
+  }
+
+
+  // Instance functions
+
+  options: BaseEditorOptions;
+  editorUi: any;
+  staticClass: typeof BaseEditorPlugin;
+
+  constructor(editorUi: any) {
+    this.editorUi = editorUi
+    this.staticClass = this.constructor as typeof BaseEditorPlugin
+    this.setOptions(this.staticClass.defaultPluginOptions)
+    this.declareUiFunctions()
+  }
+
+  setOptions(defaultOptions: BaseEditorOptions, overrideOptions?: BaseEditorOptions) {
+    let pluginName = this.staticClass.pluginName
     const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray
 
     // Default options are provided by the plugin
@@ -372,22 +410,12 @@ export class BaseEditorPlugin {
 
   }
 
-  // Instance functions
-
-  editorUi: any;
-  staticClass: typeof BaseEditorPlugin;
-
-  constructor(editorUi: any) {
-    this.editorUi = editorUi
-    this.declareUiFunctions()
-  }
 
   declareUiFunctions() {
 
-    this.staticClass = this.constructor as typeof BaseEditorPlugin
     
     let pluginName = this.staticClass.pluginName
-    let options = this.staticClass.options
+    let options = this.options
 
     let editorUi = this.editorUi;
 
@@ -408,8 +436,8 @@ export class BaseEditorPlugin {
       editorUi.editor.graph.popupMenuHandler.factoryMethod = (menu, cell, evt) => { 
         prevPopupMethod(menu, cell, evt);
         if(this.isCellHandled(cell)) {
-          menu.addItem(options.contextual, null, function() { 
-            this.showDialogCell(editorUi, cell);
+          menu.addItem(options.contextual, null, () => { 
+            this.showDialogCell(cell);
           })
       }}
     }
@@ -463,7 +491,7 @@ export class BaseEditorPlugin {
     if (!cell) { return false; }
     //@ts-ignore isNode does not require node name
     if (mxUtils.isNode(cell.value)) {
-      if (cell.getAttribute(this.staticClass.options.attributeName, false) !== false) {
+      if (cell.getAttribute(this.options.attributeName, false) !== false) {
         return true;
       }
     }

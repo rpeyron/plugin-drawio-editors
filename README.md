@@ -52,7 +52,11 @@ All plugins follow then the same configuration structure:
 - ignoreDoubleClic (optional, boolean): standard behaviour is to open editor on double click, but you may disable this by setting this parameter to true
 - contextual (optional, string): if defined, it will add a menu entry with the provided title in the context menu to open editor (note if you have set ignoreDoubleClic to true, you should really use this parameter)
 - title (optional, string): the title of the window of the editor
+- autoload (optional, boolean): if false, the plugin won't register to be loaded by drawio and you will need to call registerUi yourself
+- maximize (optional, boolean): if true, the window will be maximized
+- windowFactory (optional, PluginWindowFactory): if defined, allow to use another windowing system than mxWindow (experimental)
 - paletteItems (optional, array of Palette Items configuration): you may define your own palette items that will be used instead of the defaults
+- 
 
 Palette items configuration use the following parameters:
 - palette (mandatory, string or object): is the name of the palette in which the item should be added ; if the palette does not exist, it is created ; you may provided a label by using an object { name: string, label: string} 
