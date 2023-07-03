@@ -6,8 +6,7 @@ import ReactDOM from "react-dom";
 
 import jsonSchemaDefaultSVG from './json-schema.svg'
 
-import 'antd/dist/antd.css';
-import 'json-schema-editor-visual/dist/main.css';
+import './json-schema.scss'
 
 const schemaEditor = require("json-schema-editor-visual/dist/main.js");
 
@@ -48,10 +47,10 @@ export class JsonSchemaEditorWindow extends BaseEditorWindow {
 
     // this.component = ReactDOM.render(<AsyncApiComponent schema={schema} config={Object.assign({}, this.options.config)} />, maindiv);
     const SchemaEditor = schemaEditor(option)
-    this.component = ReactDOM.render(<SchemaEditor 
+    this.component = ReactDOM.render(<div className='json-schema'><SchemaEditor 
       data={this.curData}
       onChange={(lastData) => { this.curData = lastData}}
-    />, this.divEditor);
+    /></div>, this.divEditor);
 
   }
 
